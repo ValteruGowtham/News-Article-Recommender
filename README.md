@@ -1,79 +1,211 @@
-# News-Article-Recommender
+# News Article Recommender System
 
-News Article Recommender System - Project Description
+A machine learning-powered news article recommendation system that uses Natural Language Processing and ensemble learning to classify articles and provide personalized recommendations.
 
-Project Overview
+## 🌟 Features
 
-The News Article Recommender System is designed to provide personalized article recommendations using Machine Learning and Natural Language Processing (NLP). By analyzing the content of articles, the system identifies similar articles and offers relevant suggestions to users. It leverages a combination of supervised learning for classification and unsupervised techniques for recommendation.
+- **Article Classification**: Automatically categorize news articles using an ensemble of ML models
+- **Content-Based Recommendations**: Find similar articles based on content similarity
+- **Text Search**: Get article recommendations from custom text input
+- **Interactive Web Interface**: User-friendly Streamlit dashboard
+- **High Accuracy**: Ensemble model combining Naive Bayes, Logistic Regression, and Neural Network
 
-Objectives
+## 🚀 Quick Start
 
-Develop an efficient and scalable article recommender system.
+### Prerequisites
 
-Classify news articles into categories using machine learning models.
+- Python 3.8 or higher
+- pip package manager
 
-Provide personalized recommendations based on article content.
+### Installation
 
-Improve user engagement by suggesting relevant news articles.
+1. Clone the repository:
+```bash
+git clone https://github.com/ValteruGowtham/News-Article-Recommender.git
+cd News-Article-Recommender
+```
 
-Methodology
+2. Install required packages:
+```bash
+pip install -r requirements.txt
+```
 
-1. Data Collection and Preprocessing
+3. Prepare your dataset:
+   - Create a `data` folder in the project root
+   - Place your `news-article-categories.csv` file inside the `data` folder
+   - The CSV should have at least these columns: `category`, `body`
 
-The dataset consists of news articles with text content and their respective categories.
+### Training the Model
 
-Missing values were removed to ensure clean data.
+Run the training script to train and save all models:
 
-Articles were labeled using LabelEncoder to convert categories into numerical format.
+```bash
+python train_model.py
+```
 
-Data was split into training and test sets using an 80-20 ratio for model validation.
+This will:
+- Load and preprocess the dataset
+- Train the ensemble classification model
+- Create TF-IDF vectors for recommendations
+- Calculate cosine similarity matrix
+- Save all models in the `models` folder
 
-2. Feature Extraction
+### Running the Streamlit App
 
-TF-IDF (Term Frequency - Inverse Document Frequency): Used to transform text data into a numerical representation by analyzing the importance of words in each article.
+After training, launch the interactive web app:
 
-Limited to 5000 features to ensure computational efficiency while retaining essential information.
+```bash
+streamlit run app.py
+```
 
-3. Model Development
+The app will open in your browser at `http://localhost:8501`
 
-Three machine learning models were applied for classification:
+## 📊 Project Structure
 
-Multinomial Naive Bayes (NB): Effective for text classification with large datasets.
+```
+News-Article-Recommender/
+├── app.py                          # Streamlit web application
+├── train_model.py                  # Model training script
+├── code.ipynb                      # Jupyter notebook for experimentation
+├── requirements.txt                # Python dependencies
+├── README.md                       # This file
+├── data/
+│   └── news-article-categories.csv # Dataset (you need to add this)
+└── models/                         # Saved models (created after training)
+    ├── ensemble_model.pkl
+    ├── tfidf_vectorizer.pkl
+    ├── tfidf_all.pkl
+    ├── label_encoder.pkl
+    ├── cosine_sim.pkl
+    └── tfidf_matrix.pkl
+```
 
-Logistic Regression: A robust and interpretable classifier.
+## 🔬 Technical Details
 
-Multi-Layer Perceptron (MLP): A neural network to capture complex patterns in the data.
+### Machine Learning Pipeline
 
-An Ensemble Model using VotingClassifier combined the predictions from these three models, employing soft voting for improved accuracy.
+1. **Data Preprocessing**
+   - Remove articles with missing content
+   - Encode category labels
+   - 80-20 train-test split with stratification
 
-4. Model Evaluation
+2. **Feature Extraction**
+   - TF-IDF vectorization (5000 features)
+   - English stop words removal
+   - Captures word importance across documents
 
-Performance was evaluated using Accuracy Score and Classification Report.
+3. **Classification Models**
+   - **Multinomial Naive Bayes**: Fast, effective for text classification
+   - **Logistic Regression**: Robust linear classifier
+   - **Multi-Layer Perceptron**: Neural network for complex patterns
+   - **Ensemble**: Soft voting classifier combining all three
 
-Accuracy reflects the overall effectiveness, while the classification report provides detailed insights into precision, recall, and F1-score for each category.
+4. **Recommendation System**
+   - Content-based filtering using cosine similarity
+   - Compares TF-IDF vectors of articles
+   - Returns top-N most similar articles
 
-5. Recommendation System
+### Evaluation Metrics
 
-A Content-Based Recommendation System was implemented using Cosine Similarity.
+- Accuracy Score
+- Precision, Recall, F1-Score per category
+- Classification Report
 
-TF-IDF vectors were used to measure the similarity between articles.
+## 🎯 Using the App
 
-Given an input article, the system recommends the top 5 most similar articles by comparing cosine similarity scores.
+### 1. Find Similar Articles
+- Browse articles by category
+- Select any article to see recommendations
+- Adjust the number of recommendations (1-10)
 
-Results
+### 2. Recommend by Text
+- Enter custom text or search queries
+- System finds most relevant articles
+- Try sample texts for different topics
 
-The ensemble model demonstrated high accuracy in classifying articles into their respective categories.
+### 3. Article Classification
+- Paste article content
+- Get predicted category with confidence score
+- View probability distribution across all categories
 
-The content-based recommendation system effectively suggested relevant articles, improving user experience.
+### 4. Dataset Statistics
+- View total articles and categories
+- Explore category distribution
+- Sample random articles
 
-Future Enhancements
+## 📝 Example Usage
 
-Incorporate a hybrid recommendation system combining collaborative filtering with content-based recommendations.
+### In Python (using saved models):
 
-Implement real-time updates for personalized recommendations.
+```python
+import pickle
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
 
-Expand to multilingual support for broader applicability.
+# Load models
+with open('models/tfidf_all.pkl', 'rb') as f:
+    tfidf_all = pickle.load(f)
 
-Conclusion
+with open('models/tfidf_matrix.pkl', 'rb') as f:
+    tfidf_matrix = pickle.load(f)
 
-The News Article Recommender System successfully classifies articles and provides accurate recommendations using machine learning and NLP. This solution can be applied to news portals, content aggregation platforms, or personalized reading applications to enhance user engagement and satisfaction.
+# Get recommendations for custom text
+input_text = "Breaking news about technology and innovation"
+input_tfidf = tfidf_all.transform([input_text])
+similarity_scores = cosine_similarity(input_tfidf, tfidf_matrix)[0]
+top_5_indices = similarity_scores.argsort()[-5:][::-1]
+
+# Load data and display recommendations
+news_data = pd.read_csv('data/news-article-categories.csv')
+print(news_data.iloc[top_5_indices])
+```
+
+## 🛠️ Development
+
+### Using Jupyter Notebook
+
+Open `code.ipynb` to:
+- Experiment with different models
+- Tune hyperparameters
+- Visualize results
+- Perform exploratory data analysis
+
+### Customization
+
+- Adjust TF-IDF features: Modify `max_features` parameter
+- Change train-test split: Modify `test_size` in train_test_split
+- Add more models: Extend the ensemble with additional classifiers
+- Improve neural network: Tune `hidden_layer_sizes` and `max_iter`
+
+## 📈 Future Enhancements
+
+- [ ] Hybrid recommendation (content + collaborative filtering)
+- [ ] Real-time article updates
+- [ ] User preference learning
+- [ ] Multilingual support
+- [ ] API endpoints for integration
+- [ ] Docker containerization
+- [ ] Performance optimization for large datasets
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 👤 Author
+
+**ValteruGowtham**
+- GitHub: [@ValteruGowtham](https://github.com/ValteruGowtham)
+
+## 🙏 Acknowledgments
+
+- Scikit-learn for machine learning tools
+- Streamlit for the web framework
+- The open-source community
+
+---
+
+**Note**: Make sure to add your dataset (`news-article-categories.csv`) to the `data` folder before running the training script.
